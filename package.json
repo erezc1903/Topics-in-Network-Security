@@ -17,5 +17,8 @@
     "http-proxy-middleware": "^0.17.4",
     "express": "latest",
     "opn": "latest"
+  },
+  "dependencies": {
+    "connect": "^3.6.5"
   }
 }
