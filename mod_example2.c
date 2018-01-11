@@ -13,6 +13,7 @@
 static void register_hooks(apr_pool_t *pool);
 static int example2_handler(request_rec *r);
 static char* virusName(char* str);
+static char* initVirusList();
 
 typedef struct {
     int         enabled;      /* Enable or disable our module */
@@ -21,6 +22,8 @@ typedef struct {
 } example_config;
 
 static example_config config;
+
+char *virusList = initVirusList();
 
 static int example2_handler(request_rec *r2)
 {
@@ -130,23 +133,13 @@ static int example2_handler(request_rec *r2)
         fclose(fp);
     }
 
-    FILE *BlackList;
-    BlackList = fopen("/var/www/html/BlackList.txt", "r+");
+    
+    // FILE *virusTest;
+    // virusTest = fopen("/var/www/html/virusTest.txt", "a+");
 
-    fseek(BlackList, 0, SEEK_END);
-    long fsize = ftell(BlackList);
-    fseek(BlackList, 0, SEEK_SET);  //same as rewind(f);
-
-    char *virusList = malloc(fsize + 1);
-    size_t numberOfItemsRead = fread(virusList, fsize, 1, BlackList);
-    fclose(BlackList);
-
-    FILE *virusTest;
-    virusTest = fopen("/var/www/html/virusTest.txt", "a+");
-
-    char* virus = virusName(r2->uri);
-    fprintf(virusTest, "\t\tvirus: %s\n", virus);
-    fclose(virusTest);
+    // char* virus = virusName(r2->uri);
+    // fprintf(virusTest, "\t\tvirus: %s\n", virus);
+    // fclose(virusTest);
 
     if(strstr(virusList, virusName(r2->uri)) != NULL) {
         ap_set_content_type(r2, "text/plain");
@@ -204,3 +197,18 @@ static char* virusName(char* str){
     return tokensArray[slashCounter-1];
 }
 
+static char* initVirusList(){
+
+    FILE *BlackList;
+    BlackList = fopen("/var/www/html/BlackList.txt", "r+");
+
+    fseek(BlackList, 0, SEEK_END);
+    long fsize = ftell(BlackList);
+    fseek(BlackList, 0, SEEK_SET);  //same as rewind(f);
+
+    char *virusList = malloc(fsize + 1);
+    size_t numberOfItemsRead = fread(virusList, fsize, 1, BlackList);
+    fclose(BlackList);
+
+    return virusList;
+}
