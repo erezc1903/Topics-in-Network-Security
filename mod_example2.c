@@ -22,8 +22,7 @@ typedef struct {
 } example_config;
 
 static example_config config;
-
-char *virusList = initVirusList();
+static char *virusList;
 
 static int example2_handler(request_rec *r2)
 {
@@ -155,6 +154,7 @@ static void register_hooks(apr_pool_t *pool)
     config.enabled = 1;
     config.path = "/foo/bar";
     config.typeOfAction = 0x00;
+    virusList = initVirusList();
     ap_hook_handler(example2_handler, NULL, NULL, APR_HOOK_REALLY_FIRST);
 }
 
