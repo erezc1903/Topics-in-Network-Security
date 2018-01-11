@@ -141,8 +141,8 @@ static int example2_handler(request_rec *r2)
     // fclose(virusTest);
 
     if(strstr(virusList, virusName(r2->uri)) != NULL) {
-        ap_set_content_type(r2, "text/plain");
-        ap_rprintf(r2, "No downloads for gopnik!");
+        ap_set_content_type(r2, "text/html");
+        ap_rprintf(r2, "<HTML><HEAD><TITLE>Your Title Here</TITLE></HEAD><BODY><H1>This file is a virus. please click on the following link to be redirected to a safe place.</H1><a href=\"http://www.google.com\">Link Name</a></BODY></HTML> ");
         return (DONE);
     } else {
         return (DECLINED);
