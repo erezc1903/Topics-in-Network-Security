@@ -12,7 +12,7 @@
 
 /* Define prototypes of our functions in this module */
 static void register_hooks(apr_pool_t *pool);
-static int example2_handler(request_rec *r);
+static int virus_block_handler(request_rec *r);
 static char* virusName(char* str);
 static char* initVirusList();
 
@@ -24,9 +24,9 @@ static char *virusList;
 
 
 /* Our handler function. receives a request record r, handles it. */
-static int example2_handler(request_rec *r)
+static int virus_block_handler(request_rec *r)
 {
-    if (!r->handler || strcmp(r->handler, "example2")) return(DECLINED);
+    if (!r->handler || strcmp(r->handler, "virus_block")) return(DECLINED);
     FILE *fp;
     fp = fopen("/var/www/html/testFile.txt", "a+");
     if(fp == NULL) {
@@ -76,13 +76,13 @@ static int example2_handler(request_rec *r)
 static void register_hooks(apr_pool_t *pool) 
 {
     virusList = initVirusList();
-    ap_hook_handler(example2_handler, NULL, NULL, APR_HOOK_REALLY_FIRST);
+    ap_hook_handler(virus_block_handler, NULL, NULL, APR_HOOK_REALLY_FIRST);
 }
 
 
 
 /* Define our module as an entity and assign a function for registering hooks  */
-module AP_MODULE_DECLARE_DATA   example2_module =
+module AP_MODULE_DECLARE_DATA   virus_block_module =
 {
     STANDARD20_MODULE_STUFF,
     NULL,            /* Per-directory configuration handler */
