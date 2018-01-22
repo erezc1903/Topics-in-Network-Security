@@ -22,7 +22,7 @@
 
 
 
-NOTE: You can automatically do the proxy and module setup steps by running installer.bat:
+NOTE: You can automatically do the proxy and module setup steps by running installer.sh:
 
 =============================================== Proxy setup ==============================================
 
