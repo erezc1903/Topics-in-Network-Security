@@ -1,0 +1,93 @@
+=========================================== Installation Notes ===========================================
+
+
+============================================= Prerequisities =============================================
+
+1. Install apache2:
+
+	sudo apt-get install apache2
+
+2. Install apxs utility via apache2 dev:
+
+	sudo apt install apache2-dev
+
+3. Make sure apache2 is installed by checking it version:
+	
+	sudo apache2 -v
+
+4. Start apache2 service:
+
+	sudo /etc/init.d/apache2 start
+
+
+
+
+NOTE: You can automatically do the proxy and module setup steps by running installer.sh:
+
+=============================================== Proxy setup ==============================================
+
+1. Enable the following apache2 modules: proxy, proxy_http, proxy_connect:
+	
+	sudo a2enmod proxy
+	
+	sudo a2enmod proxy_http
+	
+	sudo a2enmod proxy_connect
+
+2. Replace the files proxy.conf and ports.conf in the apache2 conf files with the ones provided:
+	
+	sudo cp ports.conf /etc/apache2/
+	
+	sudo cp proxy.conf /etc/apache2/mods-available/
+
+3. Copy the file forward_proxy.conf into the directory /etc/apache2/sites-available/ :
+	
+	sudo cp forward_proxy.conf /etc/apache2/sites-available/
+
+4. Enable the site configurations for forward_proxy.conf:
+	
+	sudo a2ensite forward_proxy.conf
+
+5. Restart apache2 service:
+	
+	sudo /etc/init.d/apache2 restart
+
+============================================== Module setup ==============================================
+
+1. Copy the following files to the directory /var/www/html/ :
+	BlackList.txt
+	testFile.txt
+	virusTest.txt
+
+	sudo cp BlackList.txt /var/www/html/
+
+	sudo cp testFile.txt /var/www/html/
+
+	sudo cp virusTest.txt /var/www/html/
+
+2. Set their permissions to 777:
+	
+	sudo chmod 777 /var/www/html/BlackList.txt /var/www/html/testFile.txt /var/www/html/virusTest.txt
+
+3. Copy the file virus_block.conf into the mods-available folder:
+
+	sudo cp virus_block.conf /etc/apache2/mods-available/
+
+4. Compile the mod_virus_block.c file using apxs:
+
+	sudo apxs -i -a -c mod_virus_block.c
+
+5. Enable the new module if it wasn't enabled automatically:
+
+	sudo a2enmod virus_block
+
+6. Restart apache2:
+
+	sudo /etc/init.d/apache2 restart
+
+=======================================  Configuring in the browser =====================================
+
+1. Set the proxy access configurations to use manual proxy settings.
+2. For the http proxy insert the ip of this host (the host on which apache2 is running) and set the port
+   to 8080.
+3. Do the same for ssl proxy and ftp proxy.
