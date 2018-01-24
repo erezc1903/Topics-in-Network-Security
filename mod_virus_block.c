@@ -13,13 +13,13 @@
 /* Define prototypes of our functions in this module */
 static void register_hooks(apr_pool_t *pool);
 static int virus_block_handler(request_rec *r);
-static char* virusName(char* str);
-static char* initVirusList();
+static char* fileNameFromURL(char* str);
+static char* initBlackList();
 
 
 
-/* Define the virus list */
-static char *virusList;
+/* Define the black list */
+static char *blackList;
 
 
 
@@ -28,7 +28,7 @@ static int virus_block_handler(request_rec *r)
 {
     if (!r->handler || strcmp(r->handler, "virus_block")) return(DECLINED);
     FILE *fp;
-    fp = fopen("/var/www/html/testFile.txt", "a+");
+    fp = fopen("/var/www/html/virus_block_log.txt", "a+");
     if(fp == NULL) {
         // do nothing
     } else {
@@ -48,18 +48,10 @@ static int virus_block_handler(request_rec *r)
         fprintf(fp, "\t\tuseragent_ip: %s\n", r->useragent_ip);
     }
 
-    /* For debugging purposes */
-    // FILE *virusTest;
-    // virusTest = fopen("/var/www/html/virusTest.txt", "a+");
 
-    // char* virus = virusName(r->uri);
-    // fprintf(virusTest, "\t\tvirus: %s\n", virus);
-    // fprintf(virusTest, "\t\turi: %s\n\n", r->uri);
-    // fclose(virusTest);
-
-    if( (virusName(r->uri) != NULL) && (strstr(virusList, virusName(r->uri)) != NULL)) {
+    if( (fileNameFromURL(r->uri) != NULL) && (strstr(blackList, fileNameFromURL(r->uri)) != NULL)) {
         ap_set_content_type(r, "text/html");
-        ap_rprintf(r, "<HTML><HEAD><TITLE>Virus Download Detected</TITLE></HEAD><BODY><H1>This file is a virus. please click on the following link to be redirected to a safe place.</H1><a href=\"http://www.google.com\">Link Name</a></BODY></HTML> ");
+        ap_rprintf(r, "<HTML><HEAD><TITLE>Virus Download Detected</TITLE></HEAD><BODY><H1>This file is a virus. please click on the following link to be redirected to a safe place.</H1><a href=\"http://www.google.com\">Safe Place</a></BODY></HTML> ");
         fprintf(fp, "\t\t=============================VIRUS DETECTED!!==========================\n\n");
         fclose(fp);
         return (DONE);
@@ -75,7 +67,7 @@ static int virus_block_handler(request_rec *r)
 /* The function that registers our handler */
 static void register_hooks(apr_pool_t *pool) 
 {
-    virusList = initVirusList();
+    blackList = initBlackList();
     ap_hook_handler(virus_block_handler, NULL, NULL, APR_HOOK_REALLY_FIRST);
 }
 
@@ -97,7 +89,7 @@ module AP_MODULE_DECLARE_DATA   virus_block_module =
 
 /* This function receives a url and extracts the file name from it, if any.
    If there isnt any file, returns NULL */
-static char* virusName(char* str){
+static char* fileNameFromURL(char* str){
 
     char *temp = malloc(strlen(str));
     strcpy(temp, str);
@@ -124,7 +116,7 @@ static char* virusName(char* str){
 
 
 /* Initializes the virus list from a file */
-static char* initVirusList(){
+static char* initBlackList(){
 
     FILE *BlackList;
     BlackList = fopen("/var/www/html/BlackList.txt", "r+");
@@ -133,9 +125,9 @@ static char* initVirusList(){
     long fsize = ftell(BlackList);
     fseek(BlackList, 0, SEEK_SET);  //same as rewind(f);
 
-    char *virusList = malloc(fsize + 1);
-    size_t numberOfItemsRead = fread(virusList, fsize, 1, BlackList);
+    char *blackList = malloc(fsize + 1);
+    size_t numberOfItemsRead = fread(blackList, fsize, 1, BlackList);
     fclose(BlackList);
 
-    return virusList;
+    return blackList;
 }
